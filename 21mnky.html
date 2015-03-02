@@ -1,0 +1,171 @@
+<!-- 
+chimps
+http://www.dailymail.co.uk/news/article-2279528/Memory-chimpanzees-far-BETTER-human-study-reveals.html
+-->
+<html>
+	<head>
+		<style>
+			td {
+				width:50px;
+				height:50px;
+			}
+			.num {
+				height:50px;
+				text-align:center;
+				vertical-align:center;
+				font-size:24pt;
+				font-weight:bold;
+				font-family:verdana;
+			}
+			td > .num {
+				background-color:black;
+				color:white;
+			}
+		</style>
+<script>
+	var current_cell=1;
+
+	var T=null;
+	var T2=null;
+	var G=null;//2d board
+	var A=[];
+	var asize=5;
+	var gridsize=7;
+	function rand(x,y){
+		return(x+Math.abs(Math.floor(Math.random()*(y-x))))
+	}
+	function range(x,y){
+		var a=[]
+		for(var i=x;i<y;i++){
+			a[a.length]=i;
+		}
+		return(a);
+	}
+	function populate_a(){
+		A=[];
+		for(var i in range(0,asize)){
+			var cell_is_unique = 0;
+			var temp = null;
+			while(cell_is_unique != 1){
+				temp = {'x':rand(0,gridsize),'y':rand(0,gridsize),'n':1+parseInt(i)};;
+				cell_is_unique = 1;
+				var d=0;
+				while(d < i){
+					//repeated cell, must recalculate.
+					if(temp.x == A[d].x && temp.y == A[d].y){
+						cell_is_unique=0;
+						break;
+					}
+					d++;
+				}
+			}
+			A[i]=temp;
+
+			//todo check for repeat grid.
+		}
+		return(A);
+	}
+	function reset(){
+		T=new Date();
+		current_cell=1;
+		populate_a();
+		show_grid1();	
+	}
+	function mode1(x,y){
+		for(var i=0;i<A.length;i++){
+			var item = A[i];
+			if(item.x == x && item.y == y){
+				dx="<div class=num>"+item.n+"</div>";
+				return(dx);
+			}
+
+		}
+		return("&nbsp;");
+	}
+	function mode2(x,y){
+		for(var i=0;i<A.length;i++){
+			var item = A[i];
+			if(item.x == x && item.y == y){
+				dx="<div id=c"+i+" class=num onclick='cell_clicked("+i+","+item.n+")'>&nbsp</div>";
+				return(dx);
+			}
+
+		}
+		return("&nbsp;");
+	}
+	function populate_2d_grid(gridsize,f){
+		var a=[];
+		var x=0;
+		while(x<gridsize){
+			a[x]=[];
+			var y=0;
+			while(y<gridsize){
+				a[x][y]=f(x,y);
+				y++;
+			}
+			x++;
+		}
+		return(a);
+	}
+	function table(a){
+		var dx="<table border=1 width=500px cellspacing=0 cellpadding=0>"
+		var x=a.length;
+		for(var i=0;i<x;i++){
+			dx+="<tr>";
+			for(var j=0;j<a[i].length;j++){
+				dx+="<td>"+a[i][j]+"</td>";
+		
+			}
+			dx+="</tr>";
+		
+		}
+		return(dx+"</table>");
+	}
+	function show_grid1(){
+		G = populate_2d_grid(gridsize,mode1);	
+		document.getElementById("a").innerHTML=table(G);
+	}
+	function show_grid2(){
+		G = populate_2d_grid(gridsize,mode2);	
+		document.getElementById("a").innerHTML=table(G);
+	
+	}
+	function cell_clicked(cc,n){
+		if(current_cell==n){
+			document.getElementById("c"+cc).style.backgroundColor="green";
+			document.title="OK"
+			current_cell++;
+			if(current_cell==asize+1){
+				//desired condition.
+				//T2=new Date();
+				var milis = T2.getTime() - T.getTime();
+
+				alert("WELL DONE! : "+milis);
+				
+				reset();
+			}
+		}else{
+			document.getElementById("c"+cc).style.backgroundColor="red";
+			document.getElementById("c"+cc).innerHTML=n;
+			alert("Expected:"+current_cell+" GOT INSTEAD:"+n);
+			reset();
+		}
+	}
+	function hide_numbers_request(){
+		T2=new Date();
+		show_grid2();
+	}
+	function init(){
+		asize=parseInt(prompt("Enter Size:",asize));
+		reset();
+	}
+</script>
+</head>
+<body onload="init()" onkeypress="hide_numbers_request()">
+	<center>
+	<input type=button value=HIDE onclick='hide_numbers_request()'>
+	<div id=a></div>
+	</center>
+</body>
+
+</html>
